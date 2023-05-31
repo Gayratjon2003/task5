@@ -59,7 +59,7 @@ const App = () => {
 
   useEffect(() => {
     setData(generateRandomData(region, 20));
-  }, [region, errorCount]);
+  }, [region]);
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => {
@@ -84,13 +84,19 @@ const App = () => {
 
   const handleRandomSeed = () => {
     setSeed(faker.string.uuid());
+    const newData = [...data, ...generateRandomData(region, errorCount)];
+    setData(newData);
   };
   return (
     <div>
       <h1>Fake User Data Generator</h1>
       <label>
         Region:
-        <select value={region} onChange={handleRegionChange} style={{marginLeft: "10px"}}>
+        <select
+          value={region}
+          onChange={handleRegionChange}
+          style={{ marginLeft: "10px" }}
+        >
           {regions.map((region) => (
             <option key={region.code} value={region.code}>
               {region.country}
@@ -107,14 +113,19 @@ const App = () => {
           max="10"
           value={errorCount}
           onChange={handleSliderChange}
-          style={{marginLeft: "10px"}}
+          style={{ marginLeft: "10px" }}
         />
         {errorCount}
       </label>
       <br />
       <label>
         Seed:
-        <input type="text" value={seed} onChange={handleSeedChange} style={{marginLeft: "10px"}} />
+        <input
+          type="text"
+          value={seed}
+          onChange={handleSeedChange}
+          style={{ marginLeft: "10px" }}
+        />
         <button onClick={handleRandomSeed}>Random</button>
       </label>
       <br />
