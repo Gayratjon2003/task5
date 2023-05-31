@@ -16,9 +16,8 @@ const regions = [
   },
 ];
 
-const generateRandomData = (region, count) => {
+const generateRandomData = (region, count, dataLength) => {
   const data = [];
-
   for (let i = 1; i <= count; i++) {
     const randomIdentifier = faker.string.uuid();
 
@@ -28,13 +27,12 @@ const generateRandomData = (region, count) => {
     const street = allFakers[region].location.street();
     const house = allFakers[region].location.secondaryAddress();
     const address = ` ${city}, ${street}, ${house}`;
-
     let phone = allFakers[region].phone.number();
     if (region === "ru") {
       phone = faker.phone.number("+7 ### ######");
     }
-
-    let errorData = { randomIdentifier, fullName, address, phone };
+    let id = dataLength + i;
+    let errorData = { id, randomIdentifier, fullName, address, phone };
 
     data.push(errorData);
   }
@@ -48,6 +46,8 @@ const App = () => {
   const [seed, setSeed] = useState("");
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+
   const handleScroll = () => {
     if (
       window.innerHeight + document.documentElement.scrollTop ===
@@ -58,7 +58,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    setData(generateRandomData(region, 20));
+    setData(generateRandomData(region, 20, data.length));
   }, [region]);
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
@@ -67,15 +67,18 @@ const App = () => {
     };
   }, []);
   useEffect(() => {
-    const newData = [...data, ...generateRandomData(region, 10)];
+    const newData = [...data, ...generateRandomData(region, 10, data.length)];
     setData(newData);
   }, [page]);
   const handleRegionChange = (event) => {
     setRegion(event.target.value);
+    setErrorCount(0);
+    setCurrentPage(0);
   };
 
   const handleSliderChange = (event) => {
     setErrorCount(Number(event.target.value));
+    setCurrentPage(Number(event.target.value));
   };
 
   const handleSeedChange = (event) => {
@@ -84,11 +87,16 @@ const App = () => {
 
   const handleRandomSeed = () => {
     setSeed(faker.string.uuid());
-    const newData = [...data, ...generateRandomData(region, errorCount)];
+    const newData = [...data, ...generateRandomData(region, 10, data.length)];
     setData(newData);
   };
+  const itemsPerPage = 10;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
-    <div>
+    <div style={{ paddingBottom: "100px" }}>
       <h1>Fake User Data Generator</h1>
       <label>
         Region:
@@ -110,7 +118,7 @@ const App = () => {
         <input
           type="range"
           min="0"
-          max="10"
+          max={Math.ceil(data.length / itemsPerPage)}
           value={errorCount}
           onChange={handleSliderChange}
           style={{ marginLeft: "10px" }}
@@ -140,9 +148,9 @@ const App = () => {
           </tr>
         </thead>
         <tbody>
-          {data.map((record, index) => (
-            <tr key={record.randomIdentifier}>
-              <td>{index + 1}</td>
+          {currentItems.map((record) => (
+            <tr key={record.id}>
+              <td>{record.id}</td>
               <td>{record.randomIdentifier}</td>
               <td>{record.fullName}</td>
               <td>{record.address}</td>
