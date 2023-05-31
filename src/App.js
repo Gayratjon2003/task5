@@ -74,6 +74,7 @@ const App = () => {
     setRegion(event.target.value);
     setErrorCount(0);
     setCurrentPage(0);
+    setData([])
   };
 
   const handleSliderChange = (event) => {
