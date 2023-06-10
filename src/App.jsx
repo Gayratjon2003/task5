@@ -26,7 +26,6 @@ function App() {
   const tableRef = useRef(null);
 
   const pageSize = 20;
-  const loadMoreThreshold = 200;
 
   const generateUserData = () => {
     const generatedUsers = [];
@@ -90,6 +89,7 @@ function App() {
       }
 
       generatedUsers.push({
+        seed: seed,
         index: users.length + i,
         identifier,
         name: errorAppliedName,
@@ -144,6 +144,7 @@ function App() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+  console.log("users: ", users);
   return (
     <div className="app">
       <div className="controls">
@@ -192,15 +193,19 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
-              <tr key={user.identifier}>
-                <td>{user.index + 1}</td>
-                <td>{user.identifier}</td>
-                <td>{user.name}</td>
-                <td>{user.address}</td>
-                <td>{user.phone}</td>
-              </tr>
-            ))}
+            {users?.map((user) => {
+              if (user?.seed === seed) {
+                return (
+                  <tr key={user.identifier}>
+                    <td>{user.index + 1}</td>
+                    <td>{user.identifier}</td>
+                    <td>{user.name}</td>
+                    <td>{user.address}</td>
+                    <td>{user.phone}</td>
+                  </tr>
+                );
+              }
+            })}
           </tbody>
         </table>
       </div>
